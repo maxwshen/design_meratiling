@@ -5,7 +5,7 @@ import _config, _clean
 from mylib import util
 
 # Import all your steps
-import a_step, b_step
+import a_getgrnas, b_bowtie
 
 ##############################################################
 ##############################################################
@@ -16,11 +16,11 @@ print start
 ##############################################################
 ##############################################################
 
-a_res_dir = a_step.main(_config.DATA_DIR + '/2016-06-06/', 
+a_res_dir = a_getgrnas.main(_config.DATA_DIR + '/2016-11-14/', 
   _config.OUT_PLACE, 
   run = True)
 
-b_res_dir = b_step.main(a_res_dir, 
+b_res_dir = b_bowtie.main(a_res_dir, 
   _config.OUT_PLACE,
   run = True)
 

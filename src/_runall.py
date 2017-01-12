@@ -17,11 +17,11 @@ print start
 ##############################################################
 
 a_res_dir = a_getgrnas.main(_config.DATA_DIR + '/2016-11-14/', 
-  _config.OUT_PLACE, 
+  _config.OUT_PLACE + 'a_getgrnas/', 
   run = True)
 
 b_res_dir = b_bowtie.main(a_res_dir, 
-  _config.OUT_PLACE,
+  _config.OUT_PLACE + 'b_bowtie/',
   run = True)
 
 

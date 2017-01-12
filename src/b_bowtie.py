@@ -19,7 +19,12 @@ def bowtie(inp_dir, out_dir):
 
     inpfn = inp_dir + nm + '.fa'
     bt_tool = '/cluster/mshen/tools/bowtie2-2.2.9/bowtie2'
-    bt_db = '/cluster/mshen/tools/bowtie2-2.2.9/db/' + spc
+
+    if spc == 'mm10':
+      bt_db = '/cluster/mshen/tools/bowtie2-2.2.9/db/' + spc
+    if spc == 'hg38':
+      bt_db = '/cluster/mshen/tools/bowtie2-2.2.9/db/GCA_000001405.15_GRCh38_no_alt_analysis_set.fna.bowtie_index'
+
     outfn = out_dir + nm + '.sam'
     print '\t\tRunning Bowtie2...'
     ans = subprocess.check_output(bt_tool + ' -f -k ' + str(_config.d.DUP_CUTOFF + 1) + ' -x ' + bt_db + ' -U ' + inpfn + ' -S ' + outfn,
@@ -50,7 +55,8 @@ def bowtie(inp_dir, out_dir):
           f.write(h + '\n' + r + '\n')
     print '\tFiltered out', numskip, 'candidates occurring more than', _config.d.DUP_CUTOFF, 'times in', spc, 'genome'
     print '\tKept', len(headers) - numskip, 'candidate gRNAs'
-
+    if len(headers) - numskip < 12472:
+      print '\tWARNING: Fewer than 12472 candidates found'
 
   return
 

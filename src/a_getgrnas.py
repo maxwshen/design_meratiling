@@ -34,14 +34,16 @@ def get_grnas(out_dir):
       if sq[j : j+2] == 'GG':
         found = True
         start, end = j - 22, j + 1
+        cut_site = j - 4
         orient = '+'
       if sq[j : j+2] == 'CC':
         found = True
         start, end = j, j + 23 
+        cut_site = j + 5
         orient = '-'
       if found:
         # filter grnas that are too close
-        if start - prev < _config.d.MIN_DIST:
+        if cut_site - prev < _config.d.MIN_DIST:
           too_close_filtered += 1
           continue
 
@@ -59,7 +61,7 @@ def get_grnas(out_dir):
         hdr = '>' + nm + '__' + chrm + '__' + str(pos[0] + start) + '__' + str(pos[0] + end) + '__' + orient
         headers.append(hdr)
         sqs.append(s)
-        prev = start
+        prev = cut_site
 
       timer.update()
 

@@ -52,7 +52,7 @@ def bowtie(inp_dir, out_dir):
           skip = True
           numskip += 1
         if not skip:
-          f.write(h + '\n' + r + '\n')
+          f.write('>' + h + '\n' + r + '\n')
     print '\tFiltered out', numskip, 'candidates occurring more than', _config.d.DUP_CUTOFF, 'times in', spc, 'genome'
     print '\tKept', len(headers) - numskip, 'candidate gRNAs'
     if len(headers) - numskip < 12472:

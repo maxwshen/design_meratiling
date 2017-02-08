@@ -32,3 +32,4 @@ RESULTS_PLACE += DATA_FOLD
 # Project-specific parameters
 #######################################################
 
+chiapetwindow = 500   #+/-, so total window is 2x

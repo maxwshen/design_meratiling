@@ -41,7 +41,6 @@ def bowtie(inp_dir, out_dir):
             cts[w[0]] = 0
           cts[w[0]] += 1
 
-
     # Write a new filtered gRNA candidate file
     headers, reads = compbio.read_fasta(inpfn)
     numskip = 0
@@ -52,8 +51,8 @@ def bowtie(inp_dir, out_dir):
           skip = True
           numskip += 1
         if not skip:
-          f.write('>' + h + '\n' + r + '\n')
-    print '\tFiltered out', numskip, 'candidates occurring more than', _config.d.DUP_CUTOFF, 'times in', spc, 'genome'
+          f.write('>' + h + '\n' + 'ATATATCTTGTGGAAAGGACGAAACACC' + r + 'GTTTAAGAGCTATGCTGGAAACAGCATAGC\n')
+    print '\tFiltered out', numskip, 'candidates occurring at least', _config.d.DUP_CUTOFF, 'times in', spc, 'genome'
     print '\tKept', len(headers) - numskip, 'candidate gRNAs'
     if len(headers) - numskip < 12472:
       print '\tWARNING: Fewer than 12472 candidates found'

@@ -6,6 +6,7 @@ import numpy as np
 
 from mylib import util
 from mylib import compbio
+from mylib import plot
 
 # Default params
 DEFAULT_INP_DIR = _config.DATA_DIR
@@ -15,6 +16,7 @@ def search_region(nm, spc, chrm, startpos, endpos, RepeatMasker):
   startpos, endpos = int(startpos), int(endpos)
   sq = compbio.get_genomic_seq_twoBitToFa(spc, chrm, str(startpos), str(endpos))
 
+  dists = []
   headers, sqs = [], []
   prev, too_close_filtered = 0, 0
   num_repeats_found = 0
@@ -61,12 +63,14 @@ def search_region(nm, spc, chrm, startpos, endpos, RepeatMasker):
         s = 'G' + s
 
       hdr = '>' + '__'.join([nm, chrm, str(startpos + start), str(startpos + end), str(startpos + cut_site), orient])
-      headers.append(hdr)
-      sqs.append(s)
+      if hdr not in headers:
+        headers.append(hdr)
+        sqs.append(s)
+      dists.append(cut_site - prev)
       prev = cut_site
 
     timer.update()
-  return headers, sqs, too_close_filtered, num_repeats_found
+  return headers, sqs, too_close_filtered, num_repeats_found, dists
 
 
 def get_grnas(out_dir):
@@ -82,7 +86,7 @@ def get_grnas(out_dir):
     RepeatMasker.trim(chrm, pos[0] - 500000, pos[1] + 500000)
 
     print '\tRegion Length:', pos[1] - pos[0], 'bp'
-    headers, sqs, too_close_filtered, num_repeats_found = search_region(nm, spc, chrm, pos[0], pos[1], RepeatMasker)
+    headers, sqs, too_close_filtered, num_repeats_found, dists = search_region(nm, spc, chrm, pos[0], pos[1], RepeatMasker)
     print '\tFound', len(headers), 'candidate gRNAs\n'
 
     chiapet_loci = []
@@ -95,17 +99,31 @@ def get_grnas(out_dir):
 
     timer = util.Timer(total = len(chiapet_loci))
     for cpl in chiapet_loci:
-      new_headers, new_sqs, tcf, nrf = search_region(nm, spc, chrm, cpl[0], cpl[1], RepeatMasker)
-      headers += new_headers
-      sqs += new_sqs
+      new_headers, new_sqs, tcf, nrf, new_dists = search_region(nm, spc, chrm, cpl[0], cpl[1], RepeatMasker)
+
+      for (nh, ns, nd) in zip(new_headers, new_sqs, new_dists):
+        if nh not in headers and nh + '_chia' not in headers:
+          headers.append(nh + '_chia')
+          sqs.append(ns)
+          dists.append(nd)
       too_close_filtered += tcf
       num_repeats_found += nrf
       timer.update()
 
+    # Ensure no duplicate gRNAs exist
+    if len(set(headers)) != len(headers):
+      print 'ERROR: Duplicate gRNAs found'
+      import pdb; pdb.set_trace()
+      sys.exit(0)
+
+    # Analyze the distribution of distances
+    print '\tMean Distance:', np.mean(dists), '\n\tStd Distance:', np.std(dists)
+    plot.hist(dists, out_dir + nm + '_dist_hist.png')
+
     with open(out_dir + nm + '.fa', 'w') as f:
       for h, s in zip(headers, sqs):
-        s = 'ATATATCTTGTGGAAAGGACGAAACACC' + s[:-3] + 'GTTTAAGAGCTATGCTGGAAACAGCATAGC'
-        f.write('>' + h + '\n' + s + '\n')
+        # s = 'ATATATCTTGTGGAAAGGACGAAACACC' + s[:-3] + 'GTTTAAGAGCTATGCTGGAAACAGCATAGC'
+        f.write(h + '\n' + s[:-3] + '\n')
     
     print '\tFound', len(headers), 'candidate gRNAs with ChIA-PET\n'
     print '\tFiltered', too_close_filtered, 'gRNAs for being within', _config.d.MIN_DIST - 1, 'bp from another gRNA'
@@ -113,9 +131,9 @@ def get_grnas(out_dir):
     if len(headers) < 12270:
       print '\tWARNING: Fewer than 12270 candidates found'
 
-    print 'Found', sum([1 for s in sqs if len(s) == 19]), '19-len gRNAs'
-    print 'Found', sum([1 for s in sqs if len(s) == 20]), '20-len gRNAs'
-    print 'Found', sum([1 for s in sqs if len(s) == 21]), '21-len gRNAs'
+    print 'Found', sum([1 for s in sqs if len(s) == 22]), '19-len gRNAs'
+    print 'Found', sum([1 for s in sqs if len(s) == 23]), '20-len gRNAs'
+    print 'Found', sum([1 for s in sqs if len(s) == 24]), '21-len gRNAs'
 
 
   return

@@ -4,7 +4,6 @@ import _config
 import sys, os, fnmatch, datetime, subprocess
 import numpy as np
 
-import a_getgrnas
 from mylib import util
 from mylib import compbio
 
@@ -67,11 +66,10 @@ def trim_and_add_chiapet(name, inp_dir, out_dir):
     new_r += pos_control_reads
 
     # Add negative controls
-    aret = search_region(nm, spc, chrm, pos[0] - 1e6, pos[1] + 1e6)
-
-    negch, negcr = add_negative_controls(aret)
-    new_h += negch
-    new_r += negcr
+    # aret = search_region(nm, spc, chrm, pos[0] - 1e6, pos[1] + 1e6)
+    # negch, negcr = add_negative_controls(aret)
+    # new_h += negch
+    # new_r += negcr
 
     # Write out
     write_files(new_h, new_r, out_dir + nm + '.fa')
@@ -179,8 +177,8 @@ def main(inp_dir, out_dir, run = True):
 
   # Function calls
   # name = 'apobec3_mm10'
-  # name = 'ignore'
-  name = 'apobec3b_hg38'
+  name = 'ignore'
+  # name = 'apobec3b_hg38'
   trim_and_add_chiapet(name, inp_dir, out_dir)
 
   return out_dir
